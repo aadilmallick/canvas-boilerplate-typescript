@@ -1,6 +1,6 @@
 {
   "name": "@2022amallick/canvas-boilerplate",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A typescript boilerplate for canvas projects in game development",
   "main": "index.js",
   "scripts": {
