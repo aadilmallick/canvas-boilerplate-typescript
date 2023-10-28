@@ -18,8 +18,24 @@ import child_process from "child_process";
 import { fileURLToPath } from "url";
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 console.log(figlet.textSync("Canvas Boilerplate"));
-// const program = new Command();
-function generatePackageJSON(dirName) {
+function generatePackageJSON(dirName, isP5 = false) {
+    if (isP5) {
+        return `{
+      "name": "${dirName}",
+      "module": "src/index.ts",
+      "type": "module",
+      "devDependencies": {
+        "@types/p5": "^1.7.1",
+        "bun-types": "latest"
+      },
+      "peerDependencies": {
+        "typescript": "^5.0.0"
+      },
+      "dependencies": {
+        "p5": "^1.8.0"
+      }
+    }`;
+    }
     return `{
         "name": "${dirName}",
         "module": "src/index.ts",
@@ -68,6 +84,24 @@ function checkFolderNameIsValid(dirName) {
         }
     });
 }
+function chooseTemplate() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const choices = ["p5 + TypeScript", "HTML canvas + TypeScript (plain)"];
+        const result = yield inquirer.prompt({
+            name: "template",
+            type: "list",
+            message: "Choose a template:",
+            choices,
+        });
+        if (result.template === choices[0]) {
+            return "p5template";
+        }
+        if (result.template === choices[1]) {
+            return "template";
+        }
+        return "template";
+    });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         const dirName = yield getDirName();
@@ -75,8 +109,9 @@ function main() {
         if (!dirNameIsValid) {
             process.exit(1);
         }
-        const templateFolderPath = path.join(currentDir, "..", "template");
-        console.log(templateFolderPath);
+        const templateFolderName = yield chooseTemplate();
+        const templateFolderPath = path.join(currentDir, "..", templateFolderName);
+        console.info(templateFolderPath);
         const spinner = createSpinner("Scaffolding files...").start();
         child_process.execSync(`cp -r ${templateFolderPath}/* ${dirName}`);
         const packageJSONContent = generatePackageJSON(dirName);

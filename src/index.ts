@@ -15,8 +15,24 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 console.log(figlet.textSync("Canvas Boilerplate"));
 
-// const program = new Command();
-function generatePackageJSON(dirName: string) {
+function generatePackageJSON(dirName: string, isP5 = false) {
+  if (isP5) {
+    return `{
+      "name": "${dirName}",
+      "module": "src/index.ts",
+      "type": "module",
+      "devDependencies": {
+        "@types/p5": "^1.7.1",
+        "bun-types": "latest"
+      },
+      "peerDependencies": {
+        "typescript": "^5.0.0"
+      },
+      "dependencies": {
+        "p5": "^1.8.0"
+      }
+    }`;
+  }
   return `{
         "name": "${dirName}",
         "module": "src/index.ts",
@@ -67,6 +83,28 @@ async function checkFolderNameIsValid(dirName: string) {
   }
 }
 
+// returns the template folder name after prompting the user to choose a template
+async function chooseTemplate() {
+  const choices = ["p5 + TypeScript", "HTML canvas + TypeScript (plain)"];
+  const result = await inquirer.prompt({
+    name: "template",
+    type: "list",
+    message: "Choose a template:",
+    choices,
+    default: () => {
+      return choices[1];
+    },
+  });
+
+  if (result.template === choices[0]) {
+    return "p5template";
+  }
+  if (result.template === choices[1]) {
+    return "template";
+  }
+  return "template";
+}
+
 async function main() {
   const dirName = await getDirName();
 
@@ -75,8 +113,9 @@ async function main() {
     process.exit(1);
   }
 
-  const templateFolderPath = path.join(currentDir, "..", "template");
-  console.log(templateFolderPath);
+  const templateFolderName = await chooseTemplate();
+  const templateFolderPath = path.join(currentDir, "..", templateFolderName);
+  console.info(templateFolderPath);
   const spinner = createSpinner("Scaffolding files...").start();
   child_process.execSync(`cp -r ${templateFolderPath}/* ${dirName}`);
 

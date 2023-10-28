@@ -8,11 +8,17 @@
     "build": "tsc",
     "start": "tsc && npm link && canvasplate"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "HTML canvas",
+    "typescript",
+    "canvas boilerplate",
+    "canvas game development"
+  ],
+  "author": "aadilmallick",
   "license": "ISC",
   "devDependencies": {
     "@types/figlet": "^1.5.7",
+    "@types/gradient-string": "^1.1.4",
     "@types/inquirer": "^9.0.6",
     "@types/node": "^20.8.9",
     "typescript": "^5.2.2"
@@ -30,5 +36,10 @@
   "bin": {
     "canvasplate": "./dist/index.js"
   },
-  "type": "module"
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aadilmallick/canvas-boilerplate-typescript.git"
+  },
+  "homepage": "https://github.com/aadilmallick/canvas-boilerplate-typescript.git#readme"
 }
