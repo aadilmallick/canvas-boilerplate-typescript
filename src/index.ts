@@ -119,7 +119,10 @@ async function main() {
   const spinner = createSpinner("Scaffolding files...").start();
   child_process.execSync(`cp -r ${templateFolderPath}/* ${dirName}`);
 
-  const packageJSONContent = generatePackageJSON(dirName);
+  const packageJSONContent = generatePackageJSON(
+    dirName,
+    templateFolderName === "p5template"
+  );
   await fsPromise.writeFile(
     path.join(dirName, "package.json"),
     packageJSONContent
