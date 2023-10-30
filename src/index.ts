@@ -10,26 +10,43 @@ import path from "path";
 import { glob } from "glob";
 import child_process from "child_process";
 import { fileURLToPath } from "url";
+import gradient from "gradient-string";
+
+function gradientText(text: string) {
+  return new Promise((resolve, reject) => {
+    figlet(text, (err, data) => {
+      console.log(gradient.pastel.multiline(data));
+      resolve(data);
+    });
+  });
+}
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
-console.log(figlet.textSync("Canvas Boilerplate"));
+// console.log(figlet.textSync("Canvas Boilerplate"));
 
-function generatePackageJSON(dirName: string, isP5 = false) {
+function generatePackageJSON(dirName: string, isP5: boolean, isNpm: boolean) {
   if (isP5) {
     return `{
       "name": "${dirName}",
       "module": "src/index.ts",
       "type": "module",
       "devDependencies": {
-        "@types/p5": "^1.7.1",
-        "bun-types": "latest"
+        "@types/p5": "^1.7.1"${!isNpm ? "," : ""}
+        ${!isNpm ? `"bun-types": "latest"` : ""}
       },
       "peerDependencies": {
         "typescript": "^5.0.0"
       },
       "dependencies": {
         "p5": "^1.8.0"
+      }, 
+      "scripts": {
+        "build": "${
+          isNpm
+            ? "tsc -w"
+            : "bun build --minify --watch --outdir dist src/index.ts"
+        }"
       }
     }`;
   }
@@ -38,16 +55,61 @@ function generatePackageJSON(dirName: string, isP5 = false) {
         "module": "src/index.ts",
         "type": "module",
         "devDependencies": {
-          "bun-types": "latest"
+          ${!isNpm ? `"bun-types": "latest"` : ""}
         },
         "peerDependencies": {
           "typescript": "^5.0.0"
         },
         "typings": "src/types.d.ts",
         "scripts": {
-          "build": "bun build --minify --outdir dist src/index.ts"
+          "build": "${
+            isNpm
+              ? "tsc -w"
+              : "bun build --minify --watch --outdir dist src/index.ts"
+          }"
         }
       }`;
+}
+
+function generateTsConfig(isNpm: boolean) {
+  if (isNpm) {
+    return `{
+      "compilerOptions": {
+        "target": "es2016",
+        "module": "ESNext",
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "esModuleInterop": true,
+        "strict": true,
+        "skipLibCheck": true
+      },
+      "include": ["./src/**/*"],
+      "exclude": ["node_modules"]
+    }`;
+  }
+  return `{
+    "compilerOptions": {
+      "lib": ["ESNext"],
+      "module": "esnext",
+      "target": "esnext",
+      "moduleResolution": "bundler",
+      "moduleDetection": "force",
+      "allowImportingTsExtensions": true,
+      "noEmit": true,
+      "composite": true,
+      "strict": true,
+      "downlevelIteration": true,
+      "skipLibCheck": true,
+      "jsx": "react-jsx",
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "allowJs": true,
+      "types": [
+        "bun-types" // add Bun global
+      ]
+    }
+  }
+  `;
 }
 
 // program.version("0.0.1");
@@ -105,7 +167,31 @@ async function chooseTemplate() {
   return "template";
 }
 
+async function userChoseNpm() {
+  const choices = ["bun", "npm"];
+  const result = await inquirer.prompt({
+    name: "packageManager",
+    type: "list",
+    message: "Choose a package manager:",
+    choices,
+    default: () => {
+      return choices[0];
+    },
+  });
+
+  // if the user chose bun, return false
+  if (result.packageManager === choices[0]) {
+    return false;
+  }
+  // if the user chose npm, return true
+  if (result.packageManager === choices[1]) {
+    return true;
+  }
+  return false;
+}
+
 async function main() {
+  await gradientText("Canvas Boilerplate");
   const dirName = await getDirName();
 
   const dirNameIsValid = await checkFolderNameIsValid(dirName);
@@ -115,21 +201,35 @@ async function main() {
 
   const templateFolderName = await chooseTemplate();
   const templateFolderPath = path.join(currentDir, "..", templateFolderName);
-  console.info(templateFolderPath);
+  const isNpm = await userChoseNpm();
+  // console.info(templateFolderPath);
   const spinner = createSpinner("Scaffolding files...").start();
   child_process.execSync(`cp -r ${templateFolderPath}/* ${dirName}`);
 
   const packageJSONContent = generatePackageJSON(
     dirName,
-    templateFolderName === "p5template"
+    templateFolderName === "p5template",
+    isNpm
   );
+
+  const tsConfigContent = generateTsConfig(isNpm);
+
+  await fsPromise.writeFile(
+    path.join(dirName, "tsconfig.json"),
+    tsConfigContent
+  );
+
   await fsPromise.writeFile(
     path.join(dirName, "package.json"),
     packageJSONContent
   );
 
   spinner.success({
-    text: "files created. Run bun install to get started",
+    text: `files created.
+  1. cd into the ${dirName} directory.
+  2. Run \`${isNpm ? "npm" : "bun"} install\` to get started.
+  3. Run \`${isNpm ? "npm" : "bun"} run build\` to build the project.
+  4. Start a live server on the index.html in the dist to see the canvas in action.`,
   });
   process.chdir(dirName);
 }
