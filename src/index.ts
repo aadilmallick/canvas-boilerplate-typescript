@@ -71,7 +71,7 @@ function generatePackageJSON(dirName: string, isP5: boolean, isNpm: boolean) {
       }`;
 }
 
-function generateTsConfig(isNpm: boolean) {
+function generateTsConfig(isNpm: boolean, isP5: boolean) {
   if (isNpm) {
     return `{
       "compilerOptions": {
@@ -106,7 +106,8 @@ function generateTsConfig(isNpm: boolean) {
       "allowJs": true,
       "types": [
         "bun-types" // add Bun global
-      ]
+      ],
+      ${!isP5 && '"typeRoots": ["./typings"]'}
     }
   }
   `;
@@ -200,6 +201,7 @@ async function main() {
   }
 
   const templateFolderName = await chooseTemplate();
+  const isP5 = templateFolderName === "p5template";
   const templateFolderPath = path.join(currentDir, "..", templateFolderName);
   const isNpm = await userChoseNpm();
   // console.info(templateFolderPath);
@@ -212,7 +214,7 @@ async function main() {
     isNpm
   );
 
-  const tsConfigContent = generateTsConfig(isNpm);
+  const tsConfigContent = generateTsConfig(isNpm, isP5);
 
   await fsPromise.writeFile(
     path.join(dirName, "tsconfig.json"),
