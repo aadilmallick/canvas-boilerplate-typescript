@@ -126,3 +126,36 @@ function gradientText(text: string) {
   });
 }
 ```
+
+## Commander
+
+```typescript
+// 1. import it
+import { Command } from "commander";
+
+// 2. instantiate it
+const program = new Command();
+
+async function mainModule() {
+  program
+    .version("0.0.1", "-v, --version", "output the current version")
+    .description("A CLI for creating canvas projects")
+    .name("commander-practice");
+
+  program
+    .command("create")
+    .description("create a new project")
+    .argument("<username>", "name of the user")
+    .option("-n, --name <name>", "name of the project", "default-project-name")
+    .option("-p5, --p5", "use p5.js")
+    .option("-f <FILES...>, --files <FILES...>", "use specified files files")
+    .action(async (username, options) => {
+      console.log(username);
+      console.log(options.name);
+    });
+
+  program.parse(process.argv);
+}
+
+mainModule();
+```

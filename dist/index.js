@@ -186,6 +186,9 @@ function userChoseNpm() {
         return false;
     });
 }
+function getGitIgnoreContent() {
+    return "node_modules\npackage-lock.json\nbun.lockb";
+}
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         yield gradientText("Canvas Boilerplate");
@@ -205,6 +208,7 @@ function main() {
         const tsConfigContent = generateTsConfig(isNpm, isP5);
         yield fsPromise.writeFile(path.join(dirName, "tsconfig.json"), tsConfigContent);
         yield fsPromise.writeFile(path.join(dirName, "package.json"), packageJSONContent);
+        yield fsPromise.writeFile(path.join(dirName, ".gitignore"), getGitIgnoreContent());
         spinner.success({
             text: `files created.
   1. cd into the ${dirName} directory.
