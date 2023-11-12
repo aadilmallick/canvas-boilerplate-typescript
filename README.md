@@ -5,3 +5,5 @@ Run `npx @2022amallick/canvas-boilerplate` to create a new project with canvas a
 This is a bun/npm compatible canvas boilerplate system. The boilerplate prompts should take care of everything.
 
 If using npm, typescript's `tsc` is used to compile files. If using bun, bun build compiles files.
+
+![canvas boilerplate in action](2023-11-12-13-27-18.png)
