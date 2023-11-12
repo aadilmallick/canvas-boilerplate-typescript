@@ -34,3 +34,24 @@ export function timeDeltaHandler({
   }
   return timer;
 }
+
+export function createRainbowGradient(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number
+) {
+  const grd = ctx.createLinearGradient(0, 0, width, height);
+  grd.addColorStop(0, "red");
+  grd.addColorStop(0.17, "orange");
+  grd.addColorStop(0.34, "yellow");
+  grd.addColorStop(0.51, "green");
+  grd.addColorStop(0.68, "blue");
+  grd.addColorStop(0.85, "indigo");
+  grd.addColorStop(1, "violet");
+  return grd;
+}
+
+export const canvasDimensions = {
+  width: 0,
+  height: 0,
+};
