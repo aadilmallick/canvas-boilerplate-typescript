@@ -68,7 +68,7 @@ function generatePackageJSON(dirName, isP5, isNpm) {
         }
       }`;
 }
-function generateTsConfig(isNpm) {
+function generateTsConfig(isNpm, isP5) {
     if (isNpm) {
         return `{
       "compilerOptions": {
@@ -103,7 +103,8 @@ function generateTsConfig(isNpm) {
       "allowJs": true,
       "types": [
         "bun-types" // add Bun global
-      ]
+      ],
+      ${!isP5 && '"typeRoots": ["./typings"]'}
     }
   }
   `;
@@ -194,13 +195,14 @@ function main() {
             process.exit(1);
         }
         const templateFolderName = yield chooseTemplate();
+        const isP5 = templateFolderName === "p5template";
         const templateFolderPath = path.join(currentDir, "..", templateFolderName);
         const isNpm = yield userChoseNpm();
         // console.info(templateFolderPath);
         const spinner = createSpinner("Scaffolding files...").start();
         child_process.execSync(`cp -r ${templateFolderPath}/* ${dirName}`);
         const packageJSONContent = generatePackageJSON(dirName, templateFolderName === "p5template", isNpm);
-        const tsConfigContent = generateTsConfig(isNpm);
+        const tsConfigContent = generateTsConfig(isNpm, isP5);
         yield fsPromise.writeFile(path.join(dirName, "tsconfig.json"), tsConfigContent);
         yield fsPromise.writeFile(path.join(dirName, "package.json"), packageJSONContent);
         spinner.success({

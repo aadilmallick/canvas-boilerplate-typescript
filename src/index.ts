@@ -191,6 +191,10 @@ async function userChoseNpm() {
   return false;
 }
 
+function getGitIgnoreContent() {
+  return "node_modules\npackage-lock.json\nbun.lockb";
+}
+
 async function main() {
   await gradientText("Canvas Boilerplate");
   const dirName = await getDirName();
@@ -224,6 +228,11 @@ async function main() {
   await fsPromise.writeFile(
     path.join(dirName, "package.json"),
     packageJSONContent
+  );
+
+  await fsPromise.writeFile(
+    path.join(dirName, ".gitignore"),
+    getGitIgnoreContent()
   );
 
   spinner.success({

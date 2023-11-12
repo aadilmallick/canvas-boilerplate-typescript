@@ -10,5 +10,10 @@ interface Renderable {
   height: number;
 }
 
+interface DrawUIManager {
+  update(deltaTime?: number): void;
+  draw(ctx: CanvasRenderingContext2D, deltaTime?: number): void;
+}
+
 declare module "*.png";
 declare module "*.wav";
