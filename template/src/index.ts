@@ -1,13 +1,15 @@
 import { canvasDimensions } from "./utils/utils";
 
-const canvas = document.querySelector("canvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+// * use canvas creator
 
-canvas.width = 600;
-canvas.height = 600;
+// const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+// const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
-canvasDimensions.width = canvas.width;
-canvasDimensions.height = canvas.height;
+// canvas.width = 600;
+// canvas.height = 600;
+
+// canvasDimensions.width = canvas.width;
+// canvasDimensions.height = canvas.height;
 
 window.addEventListener("resize", () => {
   // add resize logic here
